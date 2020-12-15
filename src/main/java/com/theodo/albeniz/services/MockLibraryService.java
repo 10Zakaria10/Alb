@@ -31,8 +31,8 @@ public class MockLibraryService implements LibraryService{
 
 
     static {
-        LIBRARY.put(1, new Tune(2, "Thriller", "Michael J."));
-        LIBRARY.put(2, new Tune(1, "Uptown Funk", "Bruno M."));
+        LIBRARY.put(1, new Tune(2, "Thriller", "Michael J.","01-01-1999"));
+        LIBRARY.put(2, new Tune(1, "Uptown Funk", "Bruno M.","01-01-1999"));
     }
 
     public MockLibraryService() {
@@ -57,8 +57,8 @@ public class MockLibraryService implements LibraryService{
     }
 
     @Override
-    public boolean addTune(Tune tune) {
-        return false;
+    public Tune addTune(Tune tune) {
+        return tune;
     }
 
     @Override
@@ -67,8 +67,13 @@ public class MockLibraryService implements LibraryService{
     }
 
     @Override
-    public boolean modifyTune(Tune tune) {
-        return false;
+    public Tune modifyTune(Tune tune) {
+        return tune;
+    }
+
+    @Override
+    public List<Tune> getByAuthor(String author) {
+        return null;
     }
 
 }

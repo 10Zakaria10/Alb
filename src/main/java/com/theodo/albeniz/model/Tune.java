@@ -12,14 +12,35 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @Data
 public class Tune {
-    private int id;
+    private Integer id;
     @NotBlank(message = "title is mandatory")
     private String title;
     @NotChildrenSong
     private String author;
-    @NotNull
-    private String dateAppearence;
+    @NotNull(groups = {MandatoryDate.class})
+    private String releaseDate;
 
+    public Tune(int id, @NotBlank(message = "title is mandatory") String title, String author) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+    }
 
+    public Tune(@NotBlank(message = "title is mandatory") String title, String author) {
+        this.title = title;
+        this.author = author;
+    }
+
+    public interface IgnoreDate
+    {
+
+    }
+
+    public interface MandatoryDate
+    {
+
+    }
 
 }
+
+

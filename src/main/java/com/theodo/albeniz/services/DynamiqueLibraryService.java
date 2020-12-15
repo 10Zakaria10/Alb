@@ -1,15 +1,17 @@
 package com.theodo.albeniz.services;
 
 import com.theodo.albeniz.configuration.ApplicationConfig;
+import com.theodo.albeniz.database.entities.TuneEntity;
+import com.theodo.albeniz.database.repositories.TuneRepository;
 import com.theodo.albeniz.model.Tune;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Profile("!mock")
@@ -19,50 +21,70 @@ public class DynamiqueLibraryService implements LibraryService{
     private  Map<Integer, Tune> library = new HashMap<>();
 
      @Autowired
-    ApplicationConfig applicationConfig;
+     ApplicationConfig applicationConfig;
+
+     @Autowired
+     TuneRepository tuneRepository;
+
+     @Autowired
+     private ModelMapper modelMapper;
 
 
     public List<Tune> getAll(String query){
-        return library.values()
-                .stream()
-                .filter(e-> query==null ? true : e.getTitle().toLowerCase().contains(query.toLowerCase()))
-                .limit(applicationConfig.api.getMaxCollection())
-                .sorted(applicationConfig.api.ascending ? Comparator.comparingInt(Tune::getId) : Comparator.comparingInt(Tune::getId).reversed() )
-                .collect(Collectors.toList());
+         return tuneRepository.searchBy(query == null ? "" : query.toLowerCase(),
+                 PageRequest.of(0,
+                         applicationConfig.api.getMaxCollection(),
+                         applicationConfig.api.ascending ?Sort.by("title").ascending() : Sort.by("title").descending()))
+                 .stream()
+                //.filter(e-> query==null ? true : e.getTitle().toLowerCase().contains(query.toLowerCase()))
+                //.limit(applicationConfig.api.getMaxCollection())
+                //.sorted(applicationConfig.api.ascending ? Comparator.comparingInt(TuneEntity::getId) : Comparator.comparingInt(TuneEntity::getId).reversed() )
+                .map(x -> modelMapper.map(x,Tune.class))
+                 .collect(Collectors.toList());
     }
 
     public Tune getOne(int musicId){
-        return library.entrySet()
-                .stream()
-                .filter( e -> e.getValue().getId()==musicId)
-                .map(Map.Entry::getValue)
-                .findFirst().
-                        orElse(new Tune());
+        Optional<TuneEntity> tuneEntity = tuneRepository.findById(musicId);
+        if (tuneEntity.isPresent()){
+            return modelMapper.map(tuneEntity.get(),Tune.class);
+        }
+        else{
+            return null;
+        }
     }
 
     @Override
-    public boolean addTune(Tune tune) {
-        if(library.get(tune.getId())!=null)
-            return false;
-        library.put(library.size()+1,tune);
-        return true;
+    public Tune addTune(Tune tune) {
+        List<Tune> allTunes = getAll(tune.getTitle());
+        if(allTunes.size()>0){
+            return null;
+        }
+        TuneEntity tuneEntity = tuneRepository.save(modelMapper.map(tune, TuneEntity.class));
+        return modelMapper.map(tuneEntity,Tune.class);
     }
 
     @Override
     public boolean deleteTune(int id) {
-        if(library.get(id)==null)
+        if(!tuneRepository.findById(id).isPresent())
             return false;
-        library.remove(id);
+        tuneRepository.deleteById(id);
         return true;
     }
 
     @Override
-    public boolean modifyTune(Tune tune) {
-        if(library.get(tune.getId())==null)
-            return false;
-        library.get(tune.getId()).setAuthor(tune.getAuthor());
-        library.get(tune.getId()).setTitle(tune.getTitle());
-        return true;
+    public Tune modifyTune(Tune tune) {
+        if(!tuneRepository.findById(tune.getId()).isPresent())
+            return null;
+        TuneEntity tuneEntity =  tuneRepository.save(modelMapper.map(tune,TuneEntity.class));
+        return modelMapper.map(tuneEntity,Tune.class);
+    }
+
+    @Override
+    public List<Tune> getByAuthor(String author) {
+        return tuneRepository.findByAuthor(author)
+                .stream()
+                .map(x -> modelMapper.map(x,Tune.class))
+                .collect(Collectors.toList());
     }
 
 

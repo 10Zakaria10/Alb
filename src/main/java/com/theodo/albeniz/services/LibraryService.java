@@ -7,8 +7,9 @@ import java.util.List;
 public interface LibraryService {
     List<Tune> getAll(String query);
     Tune getOne(int musicId);
-    boolean addTune(Tune tune);
+    Tune addTune(Tune tune);
     boolean deleteTune(int id);
-    boolean modifyTune(Tune tune);
+    Tune modifyTune(Tune tune);
+    List<Tune> getByAuthor(String author);
 
 }

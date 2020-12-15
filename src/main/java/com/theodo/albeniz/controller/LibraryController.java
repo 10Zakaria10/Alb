@@ -6,6 +6,7 @@ import com.theodo.albeniz.services.MockLibraryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -32,13 +33,27 @@ public class LibraryController {
         return new ResponseEntity<>(tune, HttpStatus.OK);
     }
 
+    @RequestMapping("/musicByAuthor")
+    public List<Tune> getMusicByAuthor(@RequestParam(required = false) String author){
+        return libraryService.getByAuthor(author);
+    }
+
+
     @PostMapping("/music")
     public ResponseEntity addTune(@RequestBody @Valid Tune tune){
-         if(libraryService.addTune(tune)){
-             return new ResponseEntity<>(HttpStatus.OK);
-         }else{
-             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-         }
+        Tune addedTune = libraryService.addTune(tune);
+        if(addedTune != null){
+            return new ResponseEntity<>(addedTune,HttpStatus.OK);
+
+        }else{
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/v2/music")
+    public ResponseEntity addTuneV2(@RequestBody @Validated(Tune.MandatoryDate.class) Tune tune){
+        Tune addedTune = libraryService.addTune(tune);
+        return new ResponseEntity<>(addedTune,HttpStatus.OK);
     }
 
     @DeleteMapping("/music/{id}")
@@ -52,8 +67,9 @@ public class LibraryController {
 
     @PutMapping("/music")
     public  ResponseEntity updateMusic(@RequestBody  Tune tune){
-        if(libraryService.modifyTune(tune)){
-            return new ResponseEntity<>( HttpStatus.OK);
+        Tune updatedTune = libraryService.modifyTune(tune);
+        if(updatedTune != null){
+            return new ResponseEntity<>(updatedTune , HttpStatus.OK);
         }else{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
