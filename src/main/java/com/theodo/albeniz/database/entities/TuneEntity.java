@@ -20,7 +20,7 @@ public class TuneEntity {
     private String author;
     @Column(name = "RELEASE_DATE")
     private String releaseDate;
-
+    
     public TuneEntity(String title, String author, String releaseDate) {
         this.title = title;
         this.author = author;

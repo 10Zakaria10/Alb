@@ -6,6 +6,7 @@ import com.theodo.albeniz.database.repositories.TuneRepository;
 import com.theodo.albeniz.model.Tune;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -29,11 +30,13 @@ public class DynamiqueLibraryService implements LibraryService{
      @Autowired
      private ModelMapper modelMapper;
 
+    @Value("${application.api.maxCollection:2}")
+    private  String maxCollection;
 
     public List<Tune> getAll(String query){
          return tuneRepository.searchBy(query == null ? "" : query.toLowerCase(),
                  PageRequest.of(0,
-                         applicationConfig.api.getMaxCollection(),
+                         Integer.parseInt(maxCollection),
                          applicationConfig.api.ascending ?Sort.by("title").ascending() : Sort.by("title").descending()))
                  .stream()
                 //.filter(e-> query==null ? true : e.getTitle().toLowerCase().contains(query.toLowerCase()))

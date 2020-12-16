@@ -1,0 +1,25 @@
+databaseChangeLog:
+- changeSet:
+    id: 1608138933300-1
+    author: mac (generated)
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              primaryKeyName: TUNEPK
+            name: id
+            type: INT
+        - column:
+            name: author
+            type: VARCHAR(255)
+        - column:
+            name: RELEASE_DATE
+            type: VARCHAR(255)
+        - column:
+            name: title
+            type: VARCHAR(255)
+        tableName: TUNE
+
