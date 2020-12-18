@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.junit.runner.RunWith;
@@ -28,39 +29,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @AutoConfigureMockMvc
 @ActiveProfiles(profiles = "data")
 @Transactional
+@WithMockUser
 public class LibraryControllerTest {
 
     @Autowired
     MockMvc mockMvc;
 
-    @Autowired
-    TuneRepository tuneRepository;
+    //@Autowired
+    //TuneRepository tuneRepository;
 
-    @Before
-    public void cleanUp(){
-        tuneRepository.deleteAll();
-    }
+    //@Before
+    //public void cleanUp(){
+   //     tuneRepository.deleteAll();
+    //}
 
-    public static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public static Tune getObject(final String content){
-        try{
-            return new ObjectMapper().readValue(content,Tune.class);
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public MvcResult setupData(String title , String author ) throws Exception {
         return mockMvc.perform(post("/library/music")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(new Tune(title, author))))
+                .content(TestUtils.asJsonString(new Tune(title, author))))
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
@@ -82,11 +70,11 @@ public class LibraryControllerTest {
     @Test
     public void testUpdateTune_whenIdIsNotTheire_receiveNotFound() throws Exception {
         MvcResult result = setupData("Thriller","Michael J.");
-        Tune tune = getObject( result.getResponse().getContentAsString() );
+        Tune tune = TestUtils.getObject( result.getResponse().getContentAsString() );
 
         mockMvc.perform(put("/library/music")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(new Tune(tune.getId()+1, "Thriqdfller", "Mqsdfichael J."))))
+                .content(TestUtils.asJsonString(new Tune(tune.getId()+1, "Thriqdfller", "Mqsdfichael J."))))
                 .andDo(print())
                 .andExpect(status().is4xxClientError());
     }
@@ -94,11 +82,11 @@ public class LibraryControllerTest {
     @Test
     public void testUpdateTune_whenTuneIsTheir_receiveSuccesfull() throws Exception {
         MvcResult result = setupData("Thriller","Michael J.");
-        Tune tune = getObject( result.getResponse().getContentAsString() );
+        Tune tune = TestUtils.getObject( result.getResponse().getContentAsString() );
 
         mockMvc.perform(put("/library/music")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(new Tune(tune.getId(),"Thriqdfller", "Mqsdfichael J."))))
+                .content(TestUtils.asJsonString(new Tune(tune.getId(),"Thriqdfller", "Mqsdfichael J."))))
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful());
 
@@ -113,7 +101,7 @@ public class LibraryControllerTest {
     @Test
     public void testDeleteTune_whenIdIsProvidedButNotTheir_receiveNotFound() throws Exception {
         MvcResult result = setupData("Thriller","Michael J.");
-        Tune tune = getObject( result.getResponse().getContentAsString() );
+        Tune tune = TestUtils.getObject( result.getResponse().getContentAsString() );
 
         mockMvc.perform(delete("/library/music/"+tune.getId()+1)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -125,7 +113,7 @@ public class LibraryControllerTest {
     @Test
     public void testDeleteTune_whenIdIsProvided_receiveOK() throws Exception {
         MvcResult result = setupData("Thriller","Michael J.");
-        Tune tune = getObject( result.getResponse().getContentAsString() );
+        Tune tune = TestUtils.getObject( result.getResponse().getContentAsString() );
 
         mockMvc.perform(delete("/library/music/"+tune.getId())
                 .contentType(MediaType.APPLICATION_JSON))
@@ -144,7 +132,7 @@ public class LibraryControllerTest {
     public void testAddTuneV2_whenGroupeValidationIsMandayoryDate_receiveBadRequest() throws Exception {
         mockMvc.perform(post("/library/v2/music")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(new Tune("proMusic", "ProAuthor."))))
+                .content(TestUtils.asJsonString(new Tune("proMusic", "ProAuthor."))))
                 .andDo(print())
                 .andExpect(status().is4xxClientError());
 
@@ -154,7 +142,7 @@ public class LibraryControllerTest {
     public void testAddTune_whenGroupeValidationIsIsMandayoryDate_receiveSuccesful() throws Exception {
         mockMvc.perform(post("/library/music")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(new Tune("proMusic", "ProAuthor."))))
+                .content(TestUtils.asJsonString(new Tune("proMusic", "ProAuthor."))))
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful());
 
@@ -164,7 +152,7 @@ public class LibraryControllerTest {
     public void testAddTune_whenAuthorIsChantalG_receiveBadRequest() throws Exception {
         mockMvc.perform(post("/library/music")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(new Tune("proMusic", "Chantal G."))))
+                .content(TestUtils.asJsonString(new Tune("proMusic", "Chantal G."))))
                 .andDo(print())
                 .andExpect(status().is4xxClientError());
 
@@ -174,13 +162,13 @@ public class LibraryControllerTest {
     public void testAddTune_whenTuneAlreadyExist_receiveBadRequest() throws Exception {
         mockMvc.perform(post("/library/music")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(new Tune("Thriller", "Michael J."))))
+                .content(TestUtils.asJsonString(new Tune("Thriller", "Michael J."))))
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful());
         
         mockMvc.perform(post("/library/music")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(new Tune("Thriller", "Michael J."))))
+                .content(TestUtils.asJsonString(new Tune("Thriller", "Michael J."))))
                 .andDo(print())
                 .andExpect(status().is4xxClientError());
 
@@ -190,7 +178,7 @@ public class LibraryControllerTest {
     public void testAddTune_whenTitleIsNotProvided_receiveBadRequest() throws Exception {
         mockMvc.perform(post("/library/music")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(new Tune("", "Michael J."))))
+                .content(TestUtils.asJsonString(new Tune("", "Michael J."))))
                 .andDo(print())
                 .andExpect(status().is4xxClientError());
 
@@ -242,7 +230,7 @@ public class LibraryControllerTest {
     @Test
     public void testGetMusic_whenIdIsProvided_receiveIsOkAndUniqueTune() throws Exception {
         MvcResult result = setupData("Thriller","Michael J.");
-        Tune tune = getObject( result.getResponse().getContentAsString() );
+        Tune tune = TestUtils.getObject( result.getResponse().getContentAsString() );
 
         mockMvc.perform(get("/library/music/"+tune.getId())
                 .contentType(MediaType.APPLICATION_JSON))

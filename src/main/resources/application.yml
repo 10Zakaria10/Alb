@@ -18,6 +18,8 @@ server:
     servlet:
         context-path: /albeniz
 spring:
+    session:
+        store-type: none
     datasource:
         url: jdbc:mysql://localhost:3306/liquibasetest
         driver-class-name: com.mysql.cj.jdbc.Driver

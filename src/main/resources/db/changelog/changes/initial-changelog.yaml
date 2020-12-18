@@ -1,25 +1,28 @@
 databaseChangeLog:
 - changeSet:
-    id: 1608138933300-1
+    id: 1608202189387-1
     author: mac (generated)
     changes:
     - createTable:
         columns:
         - column:
-            autoIncrement: true
             constraints:
-              primaryKey: true
-              primaryKeyName: TUNEPK
-            name: id
-            type: INT
+              nullable: false
+            name: ID
+            type: BINARY(255)
         - column:
-            name: author
+            name: PASSWORD
             type: VARCHAR(255)
         - column:
-            name: RELEASE_DATE
+            name: USER_NAME
             type: VARCHAR(255)
-        - column:
-            name: title
-            type: VARCHAR(255)
-        tableName: TUNE
+        tableName: APP_USER
+- changeSet:
+    id: 1608202189387-2
+    author: mac (generated)
+    changes:
+    - addPrimaryKey:
+        columnNames: ID
+        constraintName: APP_USERPK
+        tableName: APP_USER
 
