@@ -19,7 +19,7 @@ server:
         context-path: /albeniz
 spring:
     datasource:
-        url: jdbc:mysql://localhost:3306/liquibasetest
+        url: jdbc:mysql://localhost:3306/liquibasetest?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
         driver-class-name: com.mysql.cj.jdbc.Driver
         username: root
         password: rookandroll
@@ -33,5 +33,5 @@ liquibase:
     driver: com.mysql.cj.jdbc.Driver
     password: rookandroll
     referenceUrl: hibernate:spring:com.theodo.albeniz.database.entities?dialect=org.hibernate.dialect.MySQLDialect
-    url: jdbc:mysql://localhost:3306/liquibasetest
+    url: jdbc:mysql://localhost:3306/liquibasetest?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
     username: root

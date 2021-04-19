@@ -1,0 +1,12 @@
+databaseChangeLog:
+- changeSet:
+    id: 1618794015998-1
+    author: SM (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: HAMID
+            type: varchar(255)
+        tableName: TUNE
+

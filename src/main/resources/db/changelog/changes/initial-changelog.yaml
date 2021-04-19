@@ -1,7 +1,7 @@
 databaseChangeLog:
 - changeSet:
-    id: 1608138933300-1
-    author: mac (generated)
+    id: 1618793136858-1
+    author: SM (generated)
     changes:
     - createTable:
         columns:
